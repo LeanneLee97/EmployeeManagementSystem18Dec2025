@@ -113,6 +113,4 @@ Consumes a JSON request body containing employee number, new title, new salary, 
 
 Notes
 
-* The backend must be running before the frontend is started.
-* The default page number for paginated endpoints is 1.
-* This project is intended for learning and assessment purposes.
+* The default page number for paginated endpoints is 1
