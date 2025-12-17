@@ -1,0 +1,151 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Company Employee Frontend</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        input, button { margin: 5px; }
+        .result { margin-top: 10px; border: 1px solid #ccc; padding: 10px; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ccc; padding: 5px; text-align: left; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+
+<h2>1. Get All Departments</h2>
+<button id="getDepartmentsBtn">Get Departments</button>
+<div id="departmentsResult" class="result"></div>
+
+<h2>2. Get Employee by Number</h2>
+<input type="number" id="empNumberInput" placeholder="Enter Employee Number">
+<button id="getEmployeeBtn">Get Employee</button>
+<div id="employeeResult" class="result"></div>
+
+<h2>3. Get Employees by Department</h2>
+<input type="text" id="deptNumberInput" placeholder="Enter Department Number">
+<input type="number" id="pageNumberInput" placeholder="Page Number (default 1)">
+<button id="getEmployeesByDeptBtn">Get Employees</button>
+<div id="employeesByDeptResult" class="result"></div>
+
+<h2>4. Promote Employee</h2>
+<input type="number" id="promoEmpNumber" placeholder="Employee Number">
+<input type="number" id="promoSalary" placeholder="New Salary">
+<input type="text" id="promoTitle" placeholder="New Title">
+<input type="text" id="promoDeptNo" placeholder="New Department No">
+<button id="promoteEmployeeBtn">Promote Employee</button>
+<div id="promotionResult" class="result"></div>
+
+<script>
+    const BASE_URL = 'http://localhost:8080'; // Adjust if needed
+
+    // 1. Get All Departments
+    document.getElementById('getDepartmentsBtn').addEventListener('click', async () => {
+        try {
+            const res = await fetch(`${BASE_URL}/employees/getAllDepartments`);
+            if (!res.ok) throw new Error('Network error');
+            const data = await res.json();
+            if (!data || data.length === 0) {
+                document.getElementById('departmentsResult').innerText = 'No departments found';
+                return;
+            }
+            let html = '<table><tr><th>Dept No</th><th>Dept Name</th></tr>';
+            data.forEach(dept => html += `<tr><td>${dept.deptNo}</td><td>${dept.deptName}</td></tr>`);
+            html += '</table>';
+            document.getElementById('departmentsResult').innerHTML = html;
+        } catch (err) {
+            document.getElementById('departmentsResult').innerText = 'Error fetching departments';
+            console.error(err);
+        }
+    });
+
+    // 2. Get Employee by Number
+    document.getElementById('getEmployeeBtn').addEventListener('click', async () => {
+        const empNo = document.getElementById('empNumberInput').value;
+        if (!empNo) return alert('Please enter an employee number');
+
+        try {
+            const res = await fetch(`${BASE_URL}/employees/getEmployeeRecord?empNo=${empNo}`);
+            if (!res.ok) throw new Error('Network error');
+            const data = await res.json();
+            if (!data || data === "Requested Employee Record not found") {
+                document.getElementById('employeeResult').innerText = 'Employee not found';
+                return;
+            }
+
+            let html = '<table>';
+            html += `<tr><th>Field</th><th>Value</th></tr>`;
+            html += `<tr><td>Employee Number</td><td>${data.empNo}</td></tr>`;
+            html += `<tr><td>First Name</td><td>${data.firstName}</td></tr>`;
+            html += `<tr><td>Last Name</td><td>${data.lastName}</td></tr>`;
+            html += `<tr><td>Hire Date</td><td>${data.hireDate}</td></tr>`;
+            html += `<tr><td>Current Title</td><td>${data.titleList[data.titleList.length-1].title}</td></tr>`;
+            html += `<tr><td>Current Dept</td><td>${data.deptEmpList[data.deptEmpList.length-1].deptNo}</td></tr>`;
+            html += `<tr><td>Current Salary</td><td>${data.salaryList[data.salaryList.length-1].salary}</td></tr>`;
+            html += '</table>';
+            document.getElementById('employeeResult').innerHTML = html;
+        } catch (err) {
+            document.getElementById('employeeResult').innerText = 'Error fetching employee';
+            console.error(err);
+        }
+    });
+
+    // 3. Get Employees by Department with Pagination
+    document.getElementById('getEmployeesByDeptBtn').addEventListener('click', async () => {
+        const deptNo = document.getElementById('deptNumberInput').value;
+        const page = document.getElementById('pageNumberInput').value || 1;
+        if (!deptNo) return alert('Please enter a department number');
+
+        try {
+            const res = await fetch(`${BASE_URL}/employees/getAllEmployeeRecords?departmentNo=${deptNo}&page=${page}`);
+            if (!res.ok) throw new Error('Network error');
+            const data = await res.json();
+
+            if (!data || data === "Page index contains no employee records!") {
+                document.getElementById('employeesByDeptResult').innerText = 'No employees found';
+                return;
+            }
+
+            let html = '<table><tr><th>Emp No</th><th>First Name</th><th>Last Name</th><th>Hire Date</th></tr>';
+            data.forEach(emp => {
+                html += `<tr><td>${emp.empNo}</td><td>${emp.firstName}</td><td>${emp.lastName}</td><td>${emp.hireDate}</td></tr>`;
+            });
+            html += '</table>';
+            document.getElementById('employeesByDeptResult').innerHTML = html;
+
+        } catch (err) {
+            document.getElementById('employeesByDeptResult').innerText = 'Employee does not exist';
+            console.error(err);
+        }
+    });
+
+    // 4. Promote Employee
+    document.getElementById('promoteEmployeeBtn').addEventListener('click', async () => {
+        const empNo = document.getElementById('promoEmpNumber').value;
+        const newSalary = document.getElementById('promoSalary').value;
+        const newTitle = document.getElementById('promoTitle').value;
+        const newDeptNo = document.getElementById('promoDeptNo').value;
+
+        if (!empNo || !newTitle || !newDeptNo || !newSalary) return alert('Please fill all promotion fields');
+
+        const payload = { empNo: parseInt(empNo), newSalary: parseFloat(newSalary), newTitle, newDeptNo };
+
+        try {
+            const res = await fetch(`${BASE_URL}/employees/promote`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            const textData = await res.text(); // your backend returns plain text
+            document.getElementById('promotionResult').innerHTML = `<pre>${textData}</pre>`;
+
+        } catch (err) {
+            document.getElementById('promotionResult').innerText = 'Error promoting employee';
+            console.error(err);
+        }
+    });
+</script>
+
+</body>
+</html>

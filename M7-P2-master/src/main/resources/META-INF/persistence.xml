@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<persistence xmlns="https://jakarta.ee/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd"
+             version="3.0">
+    <persistence-unit name="EmployeeService" transaction-type="RESOURCE_LOCAL">
+        <description>
+            This unit does CRUD operations to a database. It does not rely 
+            on any vendor-specific features and can therefore be deployed
+            to any persistence provider.
+        </description>
+        
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+
+        <!--
+        the class tag is not required for this case as the managed Entity class
+        is located at the root folder.
+
+        <class>jpa_demo_01.Employee</class>
+        -->
+        <class>org.DigiCorp.model.Employee</class>
+        <class>org.DigiCorp.model.Department</class>
+        <class>org.DigiCorp.model.Salary</class>
+        <class>org.DigiCorp.model.Title</class>
+        <class>org.DigiCorp.model.DeptEmp</class>
+        <class>org.DigiCorp.model.DeptManager</class>
+
+        <properties>
+            <property name="jakarta.persistence.jdbc.driver" 
+                        value="org.mariadb.jdbc.Driver"/>
+            <property name="jakarta.persistence.jdbc.url" 
+                        value="jdbc:mariadb://localhost:3306"/>
+            <property name="jakarta.persistence.jdbc.user" value="root"/>
+            <property name="jakarta.persistence.jdbc.password" value="1"/>
+            <!-- extra: show the sql statements used and run -->
+            <property name="hibernate.show_sql" value="true" />
+            <property name="hibernate.format_sql" value="true" />
+        </properties>
+    </persistence-unit>
+</persistence>
