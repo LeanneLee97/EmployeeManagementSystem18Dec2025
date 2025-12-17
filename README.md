@@ -1,82 +1,118 @@
-# Mock Project: Backend Development with Java
+# Employee Management System
 
-## Overview
-This project is a mock backend application built to manage and store company staff information.  
-It implements REST endpoints using **JAX-RS**, database access with **JPA/Hibernate**, and is packaged with **Maven** for deployment on **Apache Tomcat**.  
-The backend interfaces with the **MySQL Employees Sample Database** (running on MariaDB).
+This project is a simple employee management system built as part of an academic assignment. It consists of a Spring Boot backend and a React frontend. The system uses the MySQL/MariaDB employees database and exposes RESTful endpoints that return JSON.
 
----
-
-## Tech Stack
-- **Java 21**
-- **JAX-RS** (REST API)
-- **Hibernate/JPA** (ORM)
-- **MariaDB/MySQL Employees Sample Database**
-- **Maven** (build & dependency management)
-- **Apache Tomcat** (deployment)
-- **Postman** (API testing)
-- **Jackson** (JSON serialization)
-
+The frontend and backend are separate projects located in the same repository.
 
 ---
 
-## Project Structure
-```
-src/main/java/org/DigiCorp/
- ├── model/        # JPA entities
- ├── dto/          # DTOs for lean JSON responses
- ├── DAO/          # Business logic & queries
- └── service/      # JAX-RS endpoints
+Project structure
 
-src/main/resources/
- └── META-INF/persistence.xml
+employee-frontend/
 
-pom.xml
-```
-## Endpoints
-  
-1. ```GET /api/employees/getAllDepartments```
-   - Endpoint #1: Get All Departments
-   - Returns all department names and department numbers.
+* React frontend
+* Runs on port 3000
 
-2. ```GET /api/employees/getEmployeeRecord?empNo={empNo}```
-   - Endpoint #2: Get Employee Record  
-   - Returns the full employee record (including salaries, titles, deptEmp, deptManager).
+M7-P2/
 
-3. ```GET /api/employees/getAllEmployeeRecords?departmentNo={deptNo}&page={page}```
-   - Endpoint #3: Get Employee Records by Department  
-   - Returns employee number, first name, last name, and hire date for employees in a department.  
-   - Results are paginated (20 records per page).
-   - Page query parameter optional, defaults to page 1.
+* Spring Boot backend
+* Runs on port 8080
 
-4. ```POST /api/employees/promote ```
-   - Endpoint #4: Promote Employee  
-   - Consumes a JSON payload with promotion details.  
-   - Promotions are processed one at a time.
+---
 
-## Setup Instructions
-Clone the repository:
-git clone https://github.com/pk-wu/M7-P2.git
+Technology used
 
-Configure MariaDB with the Employees Sample Database.
+Backend
 
-(Database Source: https://dev.mysql.com/doc/employee/en/) 
+* Java
+* Spring Boot
+* Spring Data JPA (Hibernate)
+* Maven
+* MySQL / MariaDB
 
-Update persistence.xml with your DB credentials.
+Frontend
 
-Build the project:
-mvn clean package
+* React
+* JavaScript
+* HTML and CSS
 
-Deploy the generated .war file to Apache Tomcat.  
+---
 
-Test endpoints using Postman.
+Backend setup
+
+1. Ensure MySQL or MariaDB is running and the employees database is available.
+
+2. Configure the database connection in application.properties:
+
+# MariaDB connection
+spring.datasource.url=jdbc:mariadb://localhost:3306/employees
+spring.datasource.username=root
+spring.datasource.password=YOUR_PASSWORD
+spring.datasource.driver-class-name=org.mariadb.jdbc.Driver
+
+# JPA / Hibernate settings
+spring.jpa.hibernate.ddl-auto=none
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+spring.jpa.database-platform=org.hibernate.dialect.MariaDBDialect
 
 
-## Notes
-- Composite primary keys implemented using ```@IdClass```
-- All responses return JSON with appropriate HTTP status codes
-- Input validation assumes numeric inputs are clean but not always valid
-- Project packaged as .war for deployment
+3. Run the backend:
 
-## Author
-Developed by pk-wu and LeanneLee97 for educational purposes
+mvn spring-boot:run
+
+The backend will be available at:
+[http://localhost:8080](http://localhost:8080)
+
+---
+
+Frontend setup
+
+1. Navigate to the frontend directory:
+
+cd employee-frontend
+
+2. Install dependencies:
+
+npm install
+
+3. Start the development server:
+
+npm start
+
+The frontend will be available at:
+[http://localhost:3000](http://localhost:3000)
+
+---
+
+CORS configuration
+
+CORS is enabled in the backend to allow requests from the React frontend running on port 3000.
+
+---
+
+Available API endpoints
+
+Endpoint 1: Get all departments
+GET /api/departments
+Returns department number and department name for all departments.
+
+Endpoint 2: Get employee by employee number
+GET /api/employees/{empNo}
+Returns the full employee record for the given employee number.
+
+Endpoint 3: Get employees by department
+GET /api/departments/{deptNo}/employees?page=1
+Returns a paginated list of employees for the given department.
+
+Endpoint 4: Promote an employee
+POST /api/employees/promote
+Consumes a JSON request body containing employee number, new title, new salary, new department number and an optional promotion date.
+
+---
+
+Notes
+
+* The backend must be running before the frontend is started.
+* The default page number for paginated endpoints is 1.
+* This project is intended for learning and assessment purposes.
